@@ -7,7 +7,7 @@ description: Dart 2 driver for RethinkDB v2.3.
 homepage: https://github.com/marceloneppel/rethinkdb
 documentation: https://github.com/marceloneppel/rethinkdb
 environment:
-  sdk: ">=2.3.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 dependencies:
   protobuf: ^2.0.0
   crypto: ^3.0.1

@@ -43,10 +43,10 @@ class Cursor extends Stream {
 
   Future close() => _s.close();
 
-  StreamSubscription listen(Function onData,
-      {Function onError, Function onDone, bool cancelOnError}) {
-    return _s.stream.listen(onData,
-        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+  StreamSubscription listen(Function? onData,
+      {Function? onError, Function? onDone, bool? cancelOnError}) {
+    return _s.stream.listen(onData as void Function(dynamic)?,
+        onError: onError, onDone: onDone as void Function()?, cancelOnError: cancelOnError);
   }
 }
 

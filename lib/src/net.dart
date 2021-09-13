@@ -3,9 +3,9 @@ part of rethinkdb;
 class Query extends RqlQuery {
   p.Query_QueryType _type;
   int _token;
-  RqlQuery _term;
-  Map _globalOptargs;
-  Cursor _cursor;
+  RqlQuery? _term;
+  Map? _globalOptargs;
+  Cursor? _cursor;
   final Completer _queryCompleter = Completer();
 
   Query(this._type, this._token, [this._term, this._globalOptargs]);
@@ -13,11 +13,11 @@ class Query extends RqlQuery {
   serialize() {
     List res = [_type.value];
     if (_term != null) {
-      res.add(_term.build());
+      res.add(_term!.build());
     }
     if (_globalOptargs != null) {
       Map optargs = {};
-      _globalOptargs.forEach((k, v) {
+      _globalOptargs!.forEach((k, v) {
         optargs[k] = v is RqlQuery ? v.build() : v;
       });
 
@@ -29,12 +29,12 @@ class Query extends RqlQuery {
 
 class Response {
   int _token;
-  int _type;
+  int? _type;
   var _data;
   var _backtrace;
   var _profile;
-  int _errorType;
-  List _notes = [];
+  int? _errorType;
+  List? _notes = [];
 
   Response(this._token, String jsonStr) {
     if (jsonStr.isNotEmpty) {
@@ -50,7 +50,7 @@ class Response {
 }
 
 class Connection {
-  Socket _socket;
+  Socket? _socket;
   static int _nextToken = 0;
   String _host;
   int _port;
@@ -58,9 +58,9 @@ class Connection {
   String _user;
   String _password;
   int _protocolVersion = 0;
-  String _clientFirstMessage;
-  Digest _serverSignature;
-  Map _sslOpts;
+  String? _clientFirstMessage;
+  late Digest _serverSignature;
+  Map? _sslOpts;
 
   Completer<Connection> _completer = Completer();
 
@@ -84,7 +84,7 @@ class Connection {
   Future server() {
     RqlQuery query =
         Query(p.Query_QueryType.SERVER_INFO, _getToken(), null, null);
-    _sendQueue.add(query);
+    _sendQueue.add(query as Query);
     return _start(query);
   }
 
@@ -96,13 +96,13 @@ class Connection {
     close(noreplyWait);
 
     if (_listeners["connect"] != null) {
-      _listeners["connect"].forEach((func) => func());
+      _listeners["connect"]!.forEach((func) => func());
     }
     var _sock = Socket.connect(_host, _port);
 
-    if (_sslOpts != null && _sslOpts.containsKey('ca')) {
+    if (_sslOpts != null && _sslOpts!.containsKey('ca')) {
       SecurityContext context = SecurityContext()
-        ..setTrustedCertificates(_sslOpts['ca']);
+        ..setTrustedCertificates(_sslOpts!['ca']);
       _sock = SecureSocket.connect(_host, _port, context: context);
     }
 
@@ -112,9 +112,9 @@ class Connection {
     }).then((socket) {
       if (socket != null) {
         _socket = socket;
-        _socket.listen(_handleResponse, onDone: () {
+        _socket!.listen(_handleResponse, onDone: () {
           if (_listeners["close"] != null) {
-            _listeners["close"].forEach((func) => func());
+            _listeners["close"]!.forEach((func) => func());
           }
         });
 
@@ -129,7 +129,7 @@ class Connection {
               ..addAll(message.codeUnits)
               ..add(0);
 
-        _socket.add(handshake);
+        _socket!.add(handshake);
       }
     });
     return _completer.future;
@@ -157,7 +157,7 @@ class Connection {
 
   _handleAuthError(Exception error) {
     if (_listeners["error"] != null) {
-      _listeners["error"].forEach((func) => func(error));
+      _listeners["error"]!.forEach((func) => func(error));
     }
     _completer.completeError(error);
   }
@@ -167,9 +167,9 @@ class Connection {
 
     if (responseJSON.containsKey('success') && responseJSON['success']) {
       if (responseJSON.containsKey('max_protocol_version')) {
-        int max = responseJSON['max_protocol_version'];
+        int? max = responseJSON['max_protocol_version'];
         int min = responseJSON['min_protocol_version'];
-        if (min > _protocolVersion || max < _protocolVersion) {
+        if (min > _protocolVersion || max! < _protocolVersion) {
           //We don't actually support changing the protocol yet, so just error.
           _handleAuthError(RqlDriverError(
               """Unsupported protocol version ${_protocolVersion},
@@ -225,7 +225,7 @@ class Connection {
 
           List<int> messageBytes = List.from(message.codeUnits)..add(0);
 
-          _socket.add(messageBytes);
+          _socket!.add(messageBytes);
         } else if (authMap.containsKey('v')) {
           if (base64.encode(_serverSignature.bytes) != authMap['v']) {
             _handleAuthError(RqlDriverError("Invalid server signature"));
@@ -243,7 +243,7 @@ class Connection {
   _handleQueryResponse(Response response) {
     Query query = _replyQueries.remove(response._token);
 
-    Exception hasError = _checkErrorResponse(response, query._term);
+    Exception? hasError = _checkErrorResponse(response, query._term);
     if (hasError != null) {
       query._queryCompleter.completeError(hasError);
     }
@@ -252,7 +252,7 @@ class Connection {
     if (response._type == p.Response_ResponseType.SUCCESS_PARTIAL.value) {
       _replyQueries[response._token] = query;
       var cursor;
-      response._notes.forEach((note) {
+      response._notes!.forEach((note) {
         if (note == p.Response_ResponseNote.SEQUENCE_FEED.value) {
           cursor = cursor == null ? Feed(this, query, query.optargs) : cursor;
         } else if (note == p.Response_ResponseNote.UNIONED_FEED.value) {
@@ -306,12 +306,12 @@ class Connection {
     if (_socket != null) {
       if (noreplyWait) this.noreplyWait();
       try {
-        _socket.close();
+        _socket!.close();
       } catch (err) {
         // TODO: do something with err.
       }
 
-      _socket.destroy();
+      _socket!.destroy();
       _socket = null;
     }
   }
@@ -325,7 +325,7 @@ class Connection {
   void addListener(String key, Function val) {
     List currentListeners = [];
     if (_listeners != null && _listeners[key] != null) {
-      _listeners[key].forEach((element) => currentListeners.add(element));
+      _listeners[key]!.forEach((element) => currentListeners.add(element));
     }
 
     currentListeners.add(val);
@@ -337,18 +337,18 @@ class Connection {
   }
 
   clientPort() {
-    return _socket.port;
+    return _socket!.port;
   }
 
   clientAddress() {
-    return _socket.address.address;
+    return _socket!.address.address;
   }
 
   noreplyWait() {
     RqlQuery query =
         Query(p.Query_QueryType.NOREPLY_WAIT, _getToken(), null, null);
 
-    _sendQueue.add(query);
+    _sendQueue.add(query as Query);
     return _start(query);
   }
 
@@ -402,13 +402,13 @@ class Connection {
     }
   }
 
-  _checkErrorResponse(Response response, RqlQuery term) {
+  _checkErrorResponse(Response response, RqlQuery? term) {
     var message;
     var frames;
     if (response._type == p.Response_ResponseType.RUNTIME_ERROR.value) {
       message = response._data.first;
       frames = response._backtrace;
-      int errType = response._errorType;
+      int? errType = response._errorType;
       if (errType == p.Response_ErrorType.INTERNAL.value) {
         return ReqlInternalError(message, term, frames);
       } else if (errType == p.Response_ErrorType.RESOURCE_LIMIT.value) {
@@ -454,7 +454,7 @@ class Connection {
         List<int> queryHeader = List.from(_toBytes8(query._token))
           ..addAll(_toBytes(queryStr.length))
           ..addAll(queryStr);
-        _socket.add(queryHeader);
+        _socket!.add(queryHeader);
 
         _replyQueries[query._token] = query;
         return query._queryCompleter.future;
@@ -462,7 +462,7 @@ class Connection {
     }
   }
 
-  _start(RqlQuery term, [Map globalOptargs]) {
+  _start(RqlQuery term, [Map? globalOptargs]) {
     globalOptargs ??= {};
     if (globalOptargs.containsKey('db')) {
       globalOptargs['db'] = DB(globalOptargs['db']);
@@ -497,14 +497,14 @@ class Connection {
   }
 
   String _makeSalt() {
-    List<int> randomBytes = List(18);
+    List<int> randomBytes = [];
     math.Random random = math.Random.secure();
 
     for (int i = 0; i < randomBytes.length; ++i) {
       randomBytes[i] = random.nextInt(255);
     }
 
-    return base64.encode(randomBytes);
+    return base64.encode(randomBytes as List<int>);
   }
 
   List<int> _xOr(List<int> result, List<int> next) {

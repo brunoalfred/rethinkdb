@@ -3,11 +3,11 @@ import 'package:rethinkdb_dart/rethinkdb_dart.dart';
 
 main() {
   var r = Rethinkdb() as dynamic;
-  String databaseName;
-  String tableName;
-  String testDbName;
+  late String databaseName;
+  late String tableName;
+  late String testDbName;
   bool shouldDropTable = false;
-  Connection connection;
+  Connection? connection;
 
   setUp(() async {
     connection = await r.connect();
@@ -27,7 +27,7 @@ main() {
       String tblName = await r.uuid().run(connection);
       tableName = "test_table_" + tblName.replaceAll("-", "");
     }
-    connection.use(testDbName);
+    connection!.use(testDbName);
   });
 
   tearDown(() async {
@@ -35,7 +35,7 @@ main() {
       shouldDropTable = false;
       await r.tableDrop(tableName).run(connection);
     }
-    connection.close();
+    connection!.close();
   });
 
   test("r.db throws an error if a bad database name is given", () async {
@@ -43,7 +43,7 @@ main() {
       await r.db('fake2834723895').tableList().run(connection);
     } catch (err) {
       expect(err is Exception, equals(true));
-      expect(err.message, equals('Database `fake2834723895` does not exist.'));
+      expect(err.toString().split("\n")[2], equals('Database `fake2834723895` does not exist.'));
     }
   });
 
@@ -70,7 +70,7 @@ main() {
       } catch (err) {
         expect(err is Exception, equals(true));
         expect(
-            err.message, equals('Database `${databaseName}` already exists.'));
+            err.toString().split("\n")[2], equals('Database `${databaseName}` already exists.'));
       }
     });
   });
@@ -98,7 +98,7 @@ main() {
         await r.dbDrop(databaseName).run(connection);
       } catch (err) {
         expect(
-            err.message, equals('Database `${databaseName}` does not exist.'));
+            err.toString().split("\n")[2], equals('Database `${databaseName}` does not exist.'));
       }
     });
   });
@@ -138,7 +138,7 @@ main() {
     test("table should return a cursor containing all records for a table",
         () async {
       Cursor cur = await r.db('rethinkdb').table('stats').run(connection);
-      await for (Map item in cur) {
+      await for (Map item in cur as Stream<Map<dynamic, dynamic>>) {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
@@ -149,7 +149,7 @@ main() {
           .db('rethinkdb')
           .table('stats', {'read_mode': 'single'}).run(connection);
 
-      await for (Map item in cur) {
+      await for (Map item in cur as Stream<Map<dynamic, dynamic>>) {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
@@ -161,7 +161,7 @@ main() {
           .db('rethinkdb')
           .table('stats', {'read_mode': 'majority'}).run(connection);
 
-      await for (Map item in cur) {
+      await for (Map item in cur as Stream<Map<dynamic, dynamic>>) {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
@@ -173,7 +173,7 @@ main() {
           .db('rethinkdb')
           .table('stats', {'read_mode': 'outdated'}).run(connection);
 
-      await for (Map item in cur) {
+      await for (Map item in cur as Stream<Map<dynamic, dynamic>>) {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
@@ -187,7 +187,7 @@ main() {
             .table('stats', {'read_mode': 'badReadMode'}).run(connection);
       } catch (err) {
         expect(
-            err.message,
+            err.toString().split("\n")[2],
             equals(
                 'Read mode `badReadMode` unrecognized (options are "majority", "single", and "outdated").'));
       }
@@ -199,7 +199,7 @@ main() {
           .db('rethinkdb')
           .table('stats', {'identifier_format': 'name'}).run(connection);
 
-      await for (Map item in cur) {
+      await for (Map item in cur as Stream<Map<dynamic, dynamic>>) {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
@@ -211,7 +211,7 @@ main() {
           .db('rethinkdb')
           .table('stats', {'identifier_format': 'uuid'}).run(connection);
 
-      await for (Map item in cur) {
+      await for (Map item in cur as Stream<Map<dynamic, dynamic>>) {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
@@ -225,7 +225,7 @@ main() {
             .table('stats', {'identifier_format': 'badFormat'}).run(connection);
       } catch (err) {
         expect(
-            err.message,
+            err.toString().split("\n")[2],
             equals(
                 'Identifier format `badFormat` unrecognized (options are "name" and "uuid").'));
       }
@@ -237,7 +237,7 @@ main() {
             .db('rethinkdb')
             .table('stats', {'fake_option': 'bad_value'}).run(connection);
       } catch (err) {
-        expect(err.message,
+        expect(err.toString().split("\n")[2],
             equals('Unrecognized optional argument `fake_option`.'));
       }
       ;
@@ -329,13 +329,13 @@ main() {
 
   group("rqlDo command -> ", () {
     test("should accept a single argument and function", () async {
-      bool i = await r.rqlDo(3, (item) => item > 4).run(connection);
+      bool? i = await r.rqlDo(3, (item) => item > 4).run(connection);
 
       expect(i, equals(false));
     });
 
     test("should accept a many arguments and a function", () async {
-      num i = await r
+      num? i = await r
           .rqlDo(
               3,
               4,
@@ -360,20 +360,20 @@ main() {
   group("branch command -> ", () {
     test("should accept a true test and return the true branch value",
         () async {
-      String val = await r.branch(3 < 4, 'isTrue', 'isFalse').run(connection);
+      String? val = await r.branch(3 < 4, 'isTrue', 'isFalse').run(connection);
 
       expect(val, equals('isTrue'));
     });
 
     test("should accept a false test and return the false branch value",
         () async {
-      String val = await r.branch(3 > 4, 'isTrue', 'isFalse').run(connection);
+      String? val = await r.branch(3 > 4, 'isTrue', 'isFalse').run(connection);
 
       expect(val, equals('isFalse'));
     });
 
     test("should accept multiple tests and actions", () async {
-      String val = await r
+      String? val = await r
           .branch(1 > 4, 'isTrue', 0 < 1, 'elseTrue', 'isFalse')
           .run(connection);
 
@@ -386,7 +386,7 @@ main() {
       await r.error('This is my Error').run(connection);
     } catch (err) {
       expect(err.runtimeType, equals(ReqlUserError));
-      expect(err.message, equals('This is my Error'));
+      expect(err.toString().split("\n")[2], equals('This is my Error'));
     }
   });
 
@@ -399,7 +399,7 @@ main() {
         concatStrs();
         """;
 
-      String str = await r.js(jsString).run(connection);
+      String? str = await r.js(jsString).run(connection);
 
       expect(str, equals('firstHalf_secondHalf'));
     });
@@ -418,7 +418,7 @@ main() {
         await r.js(jsString, {'timeout': timeout}).run(connection);
       } catch (err) {
         expect(
-            err.message,
+            err.toString().split("\n")[2],
             equals(
                 'JavaScript query `${jsString}` timed out after ${timeout}.000 seconds.'));
       }
@@ -428,7 +428,7 @@ main() {
   group("json command -> ", () {
     test("should parse a json string", () async {
       String jsonString = "[1,2,3,4]";
-      List obj = await r.json(jsonString).run(connection);
+      List? obj = await r.json(jsonString).run(connection);
 
       expect([1, 2, 3, 4], equals(obj));
     });
@@ -439,7 +439,7 @@ main() {
         await r.json(jsonString).run(connection);
       } catch (err) {
         expect(
-            err.message,
+            err.toString().split("\n")[2],
             equals(
                 'Failed to parse "$jsonString" as JSON: The document root must not follow by other values.'));
       }
@@ -467,7 +467,7 @@ main() {
             .run(connection);
       } catch (err) {
         expect(
-            err.message,
+            err.toString().split("\n")[2],
             equals(
                 'OBJECT expects an even number of arguments (but found 7).'));
       }
@@ -475,7 +475,7 @@ main() {
   });
 
   test("args command -> should accept an array", () async {
-    List l = await r.args([1, 2]).run(connection);
+    List? l = await r.args([1, 2]).run(connection);
 
     expect(l, equals([1, 2]));
   });
@@ -483,7 +483,7 @@ main() {
   group("random command -> ", () {
     test("should generate a random number if no parameters are provided",
         () async {
-      double number = await r.random().run(connection);
+      double? number = await r.random().run(connection);
 
       expect(number is double, equals(true));
       expect(number, lessThanOrEqualTo(1));
@@ -493,7 +493,7 @@ main() {
     test(
         "should generate a positive random int no greater than the single argument",
         () async {
-      int number = await r.random(50).run(connection);
+      int? number = await r.random(50).run(connection);
 
       expect(number is int, equals(true));
       expect(number, lessThanOrEqualTo(50));
@@ -501,7 +501,7 @@ main() {
     });
 
     test("should generate a random int between the two arguments", () async {
-      int number = await r.random(50, 55).run(connection);
+      int? number = await r.random(50, 55).run(connection);
 
       expect(number is int, equals(true));
       expect(number, lessThanOrEqualTo(55));
@@ -509,7 +509,7 @@ main() {
     });
 
     test("should generate a random float between the two arguments", () async {
-      double number = await r.random(50, 55, {'float': true}).run(connection);
+      double? number = await r.random(50, 55, {'float': true}).run(connection);
       expect(number is double, equals(true));
       expect(number, lessThanOrEqualTo(55));
       expect(number, greaterThanOrEqualTo(50));
@@ -518,13 +518,13 @@ main() {
 
   group("not command -> ", () {
     test("should return false if given no arguements", () async {
-      bool val = await r.not().run(connection);
+      bool? val = await r.not().run(connection);
 
       expect(val, equals(false));
     });
 
     test("should return the inverse of the argument provided", () async {
-      bool val = await r.not(false).run(connection);
+      bool? val = await r.not(false).run(connection);
 
       expect(val, equals(true));
     });
@@ -532,13 +532,13 @@ main() {
 
   group("map command -> ", () {
     test("should map over an array", () async {
-      List arr =
+      List? arr =
           await r.map([1, 2, 3, 4, 5], (item) => item * 2).run(connection);
       expect(arr, equals([2, 4, 6, 8, 10]));
     });
 
     test("should map over multiple arrays", () async {
-      List arr = await r.map([1, 2, 3, 4, 5], [10, 9, 8, 7],
+      List? arr = await r.map([1, 2, 3, 4, 5], [10, 9, 8, 7],
           (item, item2) => item + item2).run(connection);
 
       //notice that the first array is longer but we
@@ -547,7 +547,7 @@ main() {
     });
 
     test("should map a sequence", () async {
-      List arr = await r
+      List? arr = await r
           .map(
               r.expr({
                 'key': [1, 2, 3, 4, 5]
@@ -559,7 +559,7 @@ main() {
     });
 
     test("should map over multiple sequences", () async {
-      List arr = await r
+      List? arr = await r
           .map(
               r.expr({
                 'key': [1, 2, 3, 4, 5]
@@ -576,12 +576,12 @@ main() {
 
   group("and command -> ", () {
     test("should and two values together", () async {
-      bool val = await r.and(true, true).run(connection);
+      bool? val = await r.and(true, true).run(connection);
 
       expect(val, equals(true));
     });
     test("should and more than two values together", () async {
-      bool val = await r.and(true, true, false).run(connection);
+      bool? val = await r.and(true, true, false).run(connection);
 
       expect(val, equals(false));
     });
@@ -589,13 +589,13 @@ main() {
 
   group("or command -> ", () {
     test("should or two values together", () async {
-      bool val = await r.or(true, false).run(connection);
+      bool? val = await r.or(true, false).run(connection);
 
       expect(val, equals(true));
     });
 
     test("should and more than two values together", () async {
-      bool val = await r.or(false, false, false).run(connection);
+      bool? val = await r.or(false, false, false).run(connection);
 
       expect(val, equals(false));
     });
@@ -603,7 +603,7 @@ main() {
 
   group("binary command -> ", () {
     test("should convert string to binary", () async {
-      List data = await r.binary('billysometimes').run(connection);
+      List? data = await r.binary('billysometimes').run(connection);
 
       expect(data is List, equals(true));
       expect(
@@ -629,14 +629,14 @@ main() {
 
   group("uuid command -> ", () {
     test("should create a unique uuid", () async {
-      String val = await r.uuid().run(connection);
+      String? val = await r.uuid().run(connection);
 
       expect(val is String, equals(true));
     });
 
     test("should create a uuid based on a string key", () async {
       String key = "billysometimes";
-      String val = await r.uuid(key).run(connection);
+      String? val = await r.uuid(key).run(connection);
 
       expect(val is String, equals(true));
       expect(val, equals('b3f5029e-f777-572f-a85d-5529b74fd99b'));
@@ -645,28 +645,28 @@ main() {
 
   group("expr command -> ", () {
     test("expr should convert native string to rql string", () async {
-      String str = await r.expr('string').run(connection);
+      String? str = await r.expr('string').run(connection);
       expect(str, equals('string'));
     });
 
     test("expr should convert native int to rql int", () async {
-      int str = await r.expr(3).run(connection);
+      int? str = await r.expr(3).run(connection);
       expect(str, equals(3));
     });
     test("expr should convert native double to rql float", () async {
-      double str = await r.expr(3.14).run(connection);
+      double? str = await r.expr(3.14).run(connection);
       expect(str, equals(3.14));
     });
     test("expr should convert native bool to rql bool", () async {
-      bool str = await r.expr(true).run(connection);
+      bool? str = await r.expr(true).run(connection);
       expect(str, equals(true));
     });
     test("expr should convert native list to rql array", () async {
-      List str = await r.expr([1, 2, 3]).run(connection);
+      List? str = await r.expr([1, 2, 3]).run(connection);
       expect(str, equals([1, 2, 3]));
     });
     test("expr should convert native object to rql object", () async {
-      Map str = await r.expr({'a': 'b'}).run(connection);
+      Map? str = await r.expr({'a': 'b'}).run(connection);
       expect(str, equals({'a': 'b'}));
     });
   });

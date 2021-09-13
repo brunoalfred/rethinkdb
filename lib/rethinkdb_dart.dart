@@ -16,7 +16,7 @@ part 'src/net.dart';
 part 'src/cursor.dart';
 
 class AddFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   AddFunction([this._rqlQuery]);
 
@@ -43,7 +43,7 @@ class AddFunction {
 
 /// computes logical 'and' of two or more values
 class AndFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   AndFunction([this._rqlQuery]);
 
@@ -80,7 +80,7 @@ class BranchFunction {
 }
 
 class DivFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   DivFunction([this._rqlQuery]);
 
@@ -106,7 +106,7 @@ class DivFunction {
 }
 
 class EqFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   EqFunction([this._rqlQuery]);
 
@@ -132,7 +132,7 @@ class EqFunction {
 }
 
 class GeFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   GeFunction([this._rqlQuery]);
 
@@ -158,7 +158,7 @@ class GeFunction {
 }
 
 class GtFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   GtFunction([this._rqlQuery]);
 
@@ -184,7 +184,7 @@ class GtFunction {
 }
 
 class LeFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   LeFunction([this._rqlQuery]);
 
@@ -222,7 +222,7 @@ class LineFunction {
 }
 
 class LtFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   LtFunction([this._rqlQuery]);
 
@@ -263,7 +263,7 @@ class MapFunction {
 }
 
 class MulFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   MulFunction([this._rqlQuery]);
 
@@ -289,7 +289,7 @@ class MulFunction {
 }
 
 class NeFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   NeFunction([this._rqlQuery]);
 
@@ -332,7 +332,7 @@ class ObjectFunction {
 
 /// computes logical 'or' of two or more values
 class OrFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   OrFunction([this._rqlQuery]);
 
@@ -386,7 +386,7 @@ class RqlDoFunction {
 }
 
 class SubFunction {
-  RqlQuery _rqlQuery;
+  RqlQuery? _rqlQuery;
 
   SubFunction([this._rqlQuery]);
 
@@ -425,7 +425,7 @@ class Rethinkdb {
           int port = 28015,
           String user = "admin",
           String password = "",
-          Map ssl}) =>
+          Map? ssl}) =>
       Connection(db, host, port, user, password, ssl).reconnect();
 
   /// Reference a database.This command can be chained with other commands to do further processing on the data.
@@ -457,19 +457,19 @@ class Rethinkdb {
   }
 
   /// Select all documents in a table. This command can be chained with other commands to do further processing on the data.
-  Table table(String tableName, [Map options]) => Table(tableName, options);
+  Table table(String tableName, [Map? options]) => Table(tableName, options);
 
   /// Create a table. A RethinkDB table is a collection of JSON documents.
   /// If successful, the operation returns an object: {created: 1}. If a table with the same name already exists, the operation throws RqlRuntimeError.
   /// Note: that you can only use alphanumeric characters and underscores for the table name.
-  TableCreate tableCreate(String tableName, [Map options]) =>
+  TableCreate tableCreate(String tableName, [Map? options]) =>
       TableCreate(tableName, options);
 
   /// List all table names in a database. The result is a list of strings.
   TableList tableList() => TableList();
 
   /// Drop a table. The table and all its data will be deleted.
-  TableDrop tableDrop(String tableName, [Map options]) =>
+  TableDrop tableDrop(String tableName, [Map? options]) =>
       TableDrop(tableName, options);
 
   /// Specify ascending order on an attribute
@@ -480,7 +480,7 @@ class Rethinkdb {
 
   /// Create a time object for a specific time.
   Time time(int year, int month, int day,
-      {String timezone = 'Z', int hour, int minute, num second}) {
+      {String timezone = 'Z', int? hour, int? minute, num? second}) {
     if (second != null) {
       return Time(Args([year, month, day, hour, minute, second, timezone]));
     } else {
@@ -519,7 +519,7 @@ class Rethinkdb {
   UserError error(String message) => UserError(message, {});
 
   /// Create a javascript expression.
-  JavaScript js(String js, [Map options]) => JavaScript(js, options);
+  JavaScript js(String js, [Map? options]) => JavaScript(js, options);
 
   /// Parse a JSON string on the server.
   Json json(String json) => Json(json, {});
@@ -581,12 +581,12 @@ class Rethinkdb {
   GeoJson geojson(Map geoJson) => GeoJson(geoJson);
 
   /// Construct a circular line or polygon.
-  Circle circle(point, num radius, [Map options]) =>
+  Circle circle(point, num radius, [Map? options]) =>
       Circle(point, radius, options);
 
   /// Compute the distance between a point and a geometry object
 
-  Distance distance(geo1, geo2, [Map options]) => Distance(geo1, geo2, options);
+  Distance distance(geo1, geo2, [Map? options]) => Distance(geo1, geo2, options);
 
   /// Construct a geometric line
   dynamic get line => LineFunction();

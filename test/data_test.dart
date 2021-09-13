@@ -4,10 +4,10 @@ import 'dart:async';
 
 main() {
   Rethinkdb r = Rethinkdb();
-  String tableName;
-  String testDbName;
+  late String tableName;
+  late String testDbName;
   bool shouldDropTable = false;
-  Connection connection;
+  late Connection connection;
 
   _setUpTable() async {
     return await r.table(tableName).insert([
@@ -34,13 +34,13 @@ main() {
   setUp(() async {
     connection = await r.connect();
     if (testDbName == null) {
-      String useDb = await r.uuid().run(connection);
+      String useDb = await (r.uuid().run(connection) as FutureOr<String>);
       testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
       await r.dbCreate(testDbName).run(connection);
     }
     connection.use(testDbName);
     if (tableName == null) {
-      String tblName = await r.uuid().run(connection);
+      String tblName = await (r.uuid().run(connection) as FutureOr<String>);
       tableName = "test_table_" + tblName.replaceAll("-", "");
       await r.tableCreate(tableName).run(connection);
     }
@@ -187,7 +187,7 @@ main() {
   group("changes command -> ", () {
     test("should return the changes from the person that is updated", () async {
       Feed feed =
-          await r.table(tableName).changes().run(connection).asStream().first;
+          await (r.table(tableName).changes().run(connection).asStream().first as FutureOr<Feed>);
       Timer(Duration(seconds: 1), () async {
         var result = await r
             .table(tableName)

@@ -1,30 +1,32 @@
+import 'dart:async';
+
 import 'package:test/test.dart';
 import 'package:rethinkdb_dart/rethinkdb_dart.dart';
 
 main() {
   Rethinkdb r = Rethinkdb();
-  String databaseName;
-  String tableName;
-  String testDbName;
+  late String databaseName;
+  late String tableName;
+  late String testDbName;
   bool shouldDropTable = false;
-  Connection connection;
+  late Connection connection;
 
   setUp(() async {
     connection = await r.connect();
 
     if (testDbName == null) {
-      String useDb = await r.uuid().run(connection);
+      String useDb = await (r.uuid().run(connection) as FutureOr<String>);
       testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
       await r.dbCreate(testDbName).run(connection);
     }
 
     if (databaseName == null) {
-      String dbName = await r.uuid().run(connection);
+      String dbName = await (r.uuid().run(connection) as FutureOr<String>);
       databaseName = "test_database_" + dbName.replaceAll("-", "");
     }
 
     if (tableName == null) {
-      String tblName = await r.uuid().run(connection);
+      String tblName = await (r.uuid().run(connection) as FutureOr<String>);
       tableName = "test_table_" + tblName.replaceAll("-", "");
     }
     connection.use(testDbName);
@@ -34,20 +36,20 @@ main() {
     if (shouldDropTable) {
       shouldDropTable = false;
       await r.tableDrop(tableName).run(connection);
-      await connection.close();
+      connection.close();
     } else {
-      await connection.close();
+      connection.close();
     }
   });
 
   group("count command -> ", () {
     test("should count an array", () async {
-      int count = await r.expr([1, 2, 3]).count().run(connection);
+      int? count = await r.expr([1, 2, 3]).count().run(connection);
       expect(count, equals(3));
     });
 
     test("should count an array with a filter", () async {
-      int count = await r.expr([2, 1, 2, 3, 2, 2]).count(2).run(connection);
+      int? count = await r.expr([2, 1, 2, 3, 2, 2]).count(2).run(connection);
       expect(count, equals(4));
     });
 
@@ -61,7 +63,7 @@ main() {
         {"id": 5}
       ];
       await r.table(tableName).insert(testData).run(connection);
-      int count = await r.table(tableName).count().run(connection);
+      int count = await (r.table(tableName).count().run(connection) as FutureOr<int>);
       expect(count, equals(5));
     });
 
@@ -74,18 +76,18 @@ main() {
         {"id": 10, "age": 34}
       ];
       await r.table(tableName).insert(testData).run(connection);
-      int count = await r.table(tableName)('age').count(21).run(connection);
+      int? count = await r.table(tableName)('age').count(21).run(connection);
       expect(count, equals(2));
 
-      count = await r.table(tableName).count((user) {
+      count = await (r.table(tableName).count((user) {
         return user('id').lt(8);
-      }).run(connection);
+      }).run(connection) as FutureOr<int?>);
 
       expect(count, equals(7));
     });
 
     test("remove the test database", () async {
-      Map response = await r.dbDrop(testDbName).run(connection);
+      Map response = await (r.dbDrop(testDbName).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(response.containsKey('config_changes'), equals(true));
       expect(response['dbs_dropped'], equals(1));

@@ -3,9 +3,9 @@ import 'package:rethinkdb_dart/rethinkdb_dart.dart';
 
 main() {
   var r = Rethinkdb() as dynamic;
-  String databaseName;
-  String tableName;
-  String testDbName;
+  late String databaseName;
+  late String tableName;
+  late String testDbName;
   bool shouldDropTable = false;
   var connection;
 
@@ -50,7 +50,7 @@ main() {
     });
 
     test("should create a polygon given a point and also a radius", () async {
-      Point p = r.point(long, lat);
+      Point? p = r.point(long, lat);
       Map response = await r.circle(p, rad).run(connection);
 
       expect(response.containsKey('coordinates'), equals(true));
@@ -60,7 +60,7 @@ main() {
 
     test("should create a polygon with a specified number of vertices",
         () async {
-      Point p = r.point(long, lat);
+      Point? p = r.point(long, lat);
 
       Map response =
           await r.circle(p, rad, {'num_vertices': 4}).run(connection);
@@ -73,7 +73,7 @@ main() {
 
     test("should create a polygon with a specified geo_system", () async {
       rad = 1;
-      Point p = r.point(long, lat);
+      Point? p = r.point(long, lat);
 
       Map response =
           await r.circle(p, rad, {'geo_system': 'unit_sphere'}).run(connection);
@@ -85,7 +85,7 @@ main() {
 
     test("should create a polygon with a specified unit", () async {
       rad = 1;
-      Point p = r.point(long, lat);
+      Point? p = r.point(long, lat);
 
       Map response = await r
           .circle(p, rad, {'num_vertices': 3, 'unit': 'nm'}).run(connection);
@@ -96,7 +96,7 @@ main() {
     });
 
     test("should create an unfilled line", () async {
-      Point p = r.point(long, lat);
+      Point? p = r.point(long, lat);
 
       Map response = await r
           .circle(p, rad, {'num_vertices': 4, 'fill': false}).run(connection);
@@ -108,24 +108,24 @@ main() {
   });
 
   group("distance command -> ", () {
-    Circle c = r.circle([-90, 0], 1);
-    Point p = r.point(0, -90);
+    Circle? c = r.circle([-90, 0], 1);
+    Point? p = r.point(0, -90);
 
     test("should compute the distance between a point and a polygon", () async {
-      num distance = await r.distance(p, c).run(connection);
+      num? distance = await r.distance(p, c).run(connection);
 
       expect(distance, equals(10001964.729312724));
     });
 
     test("should compute the distance for a given geo_system", () async {
-      num distance =
+      num? distance =
           await r.distance(p, c, {'geo_system': 'unit_sphere'}).run(connection);
 
       expect(distance, equals(1.5707961689526464));
     });
 
     test("should compute the distance for a given unit", () async {
-      num distance = await r.distance(
+      num? distance = await r.distance(
           p, c, {'geo_system': 'unit_sphere', 'unit': 'ft'}).run(connection);
       expect(distance, equals(5.153530738033616));
     });
@@ -154,9 +154,9 @@ main() {
   group("includes command -> ", () {
     test("should return true if a geometry includes some other geometry",
         () async {
-      Point point1 = r.point(-117.220406, 32.719464);
-      Point point2 = r.point(-117.206201, 32.725186);
-      bool doesInclude =
+      Point? point1 = r.point(-117.220406, 32.719464);
+      Point? point2 = r.point(-117.206201, 32.725186);
+      bool? doesInclude =
           await r.circle(point1, 2000).includes(point2).run(connection);
 
       expect(doesInclude, equals(true));
@@ -165,9 +165,9 @@ main() {
     test(
         "should return false if a geometry does not include some other geometry",
         () async {
-      Point point1 = r.point(-0, 0);
-      Point point2 = r.point(-100, 90);
-      bool doesInclude =
+      Point? point1 = r.point(-0, 0);
+      Point? point2 = r.point(-100, 90);
+      bool? doesInclude =
           await r.circle(point1, 1).includes(point2).run(connection);
 
       expect(doesInclude, equals(false));
@@ -176,11 +176,11 @@ main() {
     test(
         "should filter a sequence to only contain items that include some other geometry",
         () async {
-      Point point1 = r.point(-0, 0);
-      Point point2 = r.point(-1, 1);
-      Point point3 = r.point(-99, 90);
-      Point point4 = r.point(101, 90);
-      Point point5 = r.point(-100, 90);
+      Point? point1 = r.point(-0, 0);
+      Point? point2 = r.point(-1, 1);
+      Point? point3 = r.point(-99, 90);
+      Point? point4 = r.point(101, 90);
+      Point? point5 = r.point(-100, 90);
       List included = await r
           .expr([
             r.circle(point1, 2),
@@ -198,9 +198,9 @@ main() {
   group("intersects command -> ", () {
     test("should return true if a geometry intersects some other geometry",
         () async {
-      Point point1 = r.point(-117.220406, 32.719464);
-      Line line = r.line(r.point(-117.206201, 32.725186), r.point(0, 1));
-      bool doesIntersect =
+      Point? point1 = r.point(-117.220406, 32.719464);
+      Line? line = r.line(r.point(-117.206201, 32.725186), r.point(0, 1));
+      bool? doesIntersect =
           await r.circle(point1, 2000).intersects(line).run(connection);
 
       expect(doesIntersect, equals(true));
@@ -209,9 +209,9 @@ main() {
     test(
         "should return false if a geometry does not intersect some other geometry",
         () async {
-      Point point1 = r.point(-117.220406, 32.719464);
-      Line line = r.line(r.point(20, 20), r.point(0, 1));
-      bool doesIntersect =
+      Point? point1 = r.point(-117.220406, 32.719464);
+      Line? line = r.line(r.point(20, 20), r.point(0, 1));
+      bool? doesIntersect =
           await r.circle(point1, 1).intersects(line).run(connection);
 
       expect(doesIntersect, equals(false));
@@ -225,7 +225,7 @@ main() {
       var point3 = r.point(-17, 3);
       var point4 = r.point(20, 20);
       var point5 = r.point(-100, 90);
-      Line line = r.line(point1, point2);
+      Line? line = r.line(point1, point2);
       List intersecting = await r
           .expr([point1, point2, point3, point4, point5])
           .intersects(line)
@@ -358,11 +358,11 @@ main() {
       expect(poly['type'], equals('Polygon'));
     });
 
-    Point point1 = r.point(0, 0);
-    Point point2 = r.point(40, 0);
-    Point point3 = r.point(40, 40);
-    Point point4 = r.point(20, 50);
-    Point point5 = r.point(0, 40);
+    Point? point1 = r.point(0, 0);
+    Point? point2 = r.point(40, 0);
+    Point? point3 = r.point(40, 40);
+    Point? point4 = r.point(20, 50);
+    Point? point5 = r.point(0, 40);
     test("should create a polygon given three points", () async {
       Map poly = await r.polygon(point1, point2, point3).run(connection);
 

@@ -52,7 +52,7 @@ main() {
 
   test("connections should return server info", () async {
     Connection conn = await r.connect();
-    Map m = await conn.server();
+    Map m = await (conn.server() as FutureOr<Map<dynamic, dynamic>>);
 
     expect(m.keys.length, equals(3));
     expect(m.containsKey('id'), equals(true));

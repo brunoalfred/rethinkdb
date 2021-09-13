@@ -3,11 +3,11 @@ import 'package:rethinkdb_dart/rethinkdb_dart.dart';
 
 main() {
   var r = Rethinkdb() as dynamic;
-  String databaseName;
-  String tableName;
-  String testDbName;
+  late String databaseName;
+  late String tableName;
+  late String testDbName;
   bool shouldDropTable = false;
-  Connection connection;
+  Connection? connection;
 
   setUp(() async {
     connection = await r.connect();
@@ -27,16 +27,16 @@ main() {
       String tblName = await r.uuid().run(connection);
       tableName = "test_table_" + tblName.replaceAll("-", "");
     }
-    connection.use(testDbName);
+    connection!.use(testDbName);
   });
 
   tearDown(() async {
     if (shouldDropTable) {
       shouldDropTable = false;
       await r.tableDrop(tableName).run(connection);
-      connection.close();
+      connection!.close();
     } else {
-      connection.close();
+      connection!.close();
     }
   });
 

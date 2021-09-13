@@ -1,25 +1,27 @@
+import 'dart:async';
+
 import 'package:test/test.dart';
 import 'package:rethinkdb_dart/rethinkdb_dart.dart';
 
 main() {
   Rethinkdb r = Rethinkdb();
-  String tableName;
-  String testDbName;
+  late String tableName;
+  late String testDbName;
   bool shouldDropTable = false;
-  Connection connection;
+  late Connection connection;
 
   setUp(() async {
     connection = await r.connect();
 
     if (testDbName == null) {
-      String useDb = await r.uuid().run(connection);
+      String useDb = await (r.uuid().run(connection) as FutureOr<String>);
       testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
       await r.dbCreate(testDbName).run(connection);
     }
     connection.use(testDbName);
 
     if (tableName == null) {
-      String tblName = await r.uuid().run(connection);
+      String tblName = await (r.uuid().run(connection) as FutureOr<String>);
       tableName = "test_table_" + tblName.replaceAll("-", "");
       await r.tableCreate(tableName).run(connection);
     }
@@ -35,9 +37,9 @@ main() {
 
   group("insert command -> ", () {
     test("should insert a single record", () async {
-      Map createdRecord = await r
+      Map createdRecord = await (r
           .table(tableName)
-          .insert({'id': 1, 'name': 'Jane Doe'}).run(connection);
+          .insert({'id': 1, 'name': 'Jane Doe'}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(createdRecord['deleted'], equals(0));
       expect(createdRecord['errors'], equals(0));
@@ -48,9 +50,9 @@ main() {
     });
 
     test("should error if record exists", () async {
-      Map createdRecord = await r
+      Map createdRecord = await (r
           .table(tableName)
-          .insert({'id': 1, 'name': 'Jane Doe'}).run(connection);
+          .insert({'id': 1, 'name': 'Jane Doe'}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(
           createdRecord['first_error'].startsWith('Duplicate primary key `id`'),
@@ -63,7 +65,7 @@ main() {
       expect(createdRecord['unchanged'], equals(0));
     });
     test("should insert multiple records", () async {
-      Map createdRecord = await r.table(tableName).insert([
+      Map createdRecord = await (r.table(tableName).insert([
         {'name': 'Jane Doe'},
         {
           'id': 2,
@@ -73,7 +75,7 @@ main() {
             'drums': ['kick', 'tom']
           }
         }
-      ]).run(connection);
+      ]).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(createdRecord['deleted'], equals(0));
       expect(createdRecord['errors'], equals(0));
@@ -84,9 +86,9 @@ main() {
       expect(createdRecord['unchanged'], equals(0));
     });
     test("should change durability", () async {
-      Map createdRecord = await r
+      Map createdRecord = await (r
           .table(tableName)
-          .insert({'name': 'a'}, {'durability': 'hard'}).run(connection);
+          .insert({'name': 'a'}, {'durability': 'hard'}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(createdRecord['deleted'], equals(0));
       expect(createdRecord['errors'], equals(0));
@@ -97,9 +99,9 @@ main() {
       expect(createdRecord['unchanged'], equals(0));
     });
     test("should allow return_changes", () async {
-      Map createdRecord = await r
+      Map createdRecord = await (r
           .table(tableName)
-          .insert({'name': 'a'}, {'return_changes': true}).run(connection);
+          .insert({'name': 'a'}, {'return_changes': true}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(createdRecord['changes'][0]['new_val']['name'], equals('a'));
       expect(createdRecord['changes'][0]['old_val'], equals(null));
@@ -154,9 +156,9 @@ main() {
 
   group("update command -> ", () {
     test("should update all records in a table", () async {
-      Map update = await r
+      Map update = await (r
           .table(tableName)
-          .update({'lastModified': DateTime.now()}).run(connection);
+          .update({'lastModified': DateTime.now()}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(update['replaced'], equals(5));
     });
@@ -171,45 +173,45 @@ main() {
     });
 
     test("should update a single record", () async {
-      Map updatedSelection = await r
+      Map updatedSelection = await (r
           .table(tableName)
           .get(1)
-          .update({'newField2': 44}).run(connection);
+          .update({'newField2': 44}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(updatedSelection['replaced'], equals(1));
     });
 
     test("should update with durability option", () async {
-      Map updatedSelection = await r
+      Map updatedSelection = await (r
           .table(tableName)
           .get(1)
-          .update({'newField2': 22}, {'durability': 'soft'}).run(connection);
+          .update({'newField2': 22}, {'durability': 'soft'}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(updatedSelection['replaced'], equals(1));
     });
 
     test("should update with return_changes option", () async {
-      Map updatedSelection = await r.table(tableName).get(1).update(
-          {'newField2': 11}, {'return_changes': 'always'}).run(connection);
+      Map updatedSelection = await (r.table(tableName).get(1).update(
+          {'newField2': 11}, {'return_changes': 'always'}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(updatedSelection.containsKey('changes'), equals(true));
     });
 
     test("should update with non_atomic option", () async {
-      Map updatedSelection = await r
+      Map updatedSelection = await (r
           .table(tableName)
           .get(1)
-          .update({'newField2': 00}, {'non_atomic': true}).run(connection);
+          .update({'newField2': 00}, {'non_atomic': true}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(updatedSelection['replaced'], equals(1));
     });
 
     test("should update with r.literal", () async {
-      Map updated = await r.table(tableName).get(2).update({
+      Map updated = await (r.table(tableName).get(2).update({
         'kit': r.literal({'bells': 'cow'})
       }, {
         'return_changes': true
-      }).run(connection);
+      }).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       Map old_val = updated['changes'][0]['old_val'];
       Map new_val = updated['changes'][0]['new_val'];
@@ -223,7 +225,7 @@ main() {
   group("replace command -> ", () {
     test("should replace a single selection", () async {
       Map replaced =
-          await r.table(tableName).get(1).replace({'id': 1}).run(connection);
+          await (r.table(tableName).get(1).replace({'id': 1}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
       expect(replaced['replaced'], equals(1));
     });
 
@@ -243,7 +245,7 @@ main() {
 
     test("should populate errors", () async {
       Map replaceError =
-          await r.table(tableName).get(1).replace({}).run(connection);
+          await (r.table(tableName).get(1).replace({}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(replaceError['errors'], equals(1));
       expect(replaceError['first_error'],
@@ -253,12 +255,12 @@ main() {
 
   group("delete command -> ", () {
     test("should delete a single selection", () async {
-      Map deleted = await r
+      Map deleted = await (r
           .table(tableName)
           .get(1)
-          .delete({'return_changes': true}).run(connection);
+          .delete({'return_changes': true}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
-      Map newVal = deleted['changes'][0]['new_val'];
+      Map? newVal = deleted['changes'][0]['new_val'];
       Map oldVal = deleted['changes'][0]['old_val'];
 
       expect(deleted['deleted'], equals(1));
@@ -267,14 +269,14 @@ main() {
     });
 
     test("should delete a selection", () async {
-      Map deleted = await r
+      Map deleted = await (r
           .table(tableName)
           .limit(2)
-          .delete({'return_changes': true}).run(connection);
+          .delete({'return_changes': true}).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(deleted['changes'].length, equals(2));
 
-      Map newVal = deleted['changes'][0]['new_val'];
+      Map? newVal = deleted['changes'][0]['new_val'];
       Map oldVal = deleted['changes'][0]['old_val'];
 
       expect(deleted['deleted'], equals(2));
@@ -293,7 +295,7 @@ main() {
 
     test("should delete all records on a table", () async {
       await r.table(tableName).delete().run(connection);
-      Cursor results = await r.table(tableName).run(connection);
+      Cursor results = await (r.table(tableName).run(connection) as FutureOr<Cursor>);
 
       List resList = await results.toList();
       expect(resList.isEmpty, equals(true));
@@ -302,7 +304,7 @@ main() {
 
   group("sync command -> ", () {
     test("should sync", () async {
-      Map syncComplete = await r.table(tableName).sync().run(connection);
+      Map syncComplete = await (r.table(tableName).sync().run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
       expect(syncComplete.containsKey('synced'), equals(true));
       expect(syncComplete['synced'], equals(1));
@@ -310,7 +312,7 @@ main() {
   });
 
   test("remove the test database", () async {
-    Map response = await r.dbDrop(testDbName).run(connection);
+    Map response = await (r.dbDrop(testDbName).run(connection) as FutureOr<Map<dynamic, dynamic>>);
 
     expect(response.containsKey('config_changes'), equals(true));
     expect(response['dbs_dropped'], equals(1));

@@ -16,7 +16,7 @@ part 'src/net.dart';
 part 'src/cursor.dart';
 
 class AddFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   AddFunction([this._rqlQuery]);
 
@@ -26,13 +26,13 @@ class AddFunction {
     } else if (obj is Args) {
       return Add([obj]);
     } else {
-      throw RqlDriverError("Called add with too few values");
+      throw RqlDriverError('Called add with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -43,7 +43,7 @@ class AddFunction {
 
 /// computes logical 'and' of two or more values
 class AndFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   AndFunction([this._rqlQuery]);
 
@@ -51,13 +51,13 @@ class AndFunction {
     if (_rqlQuery != null) {
       return And([_rqlQuery, obj]);
     } else {
-      throw RqlDriverError("Called and with too few values");
+      throw RqlDriverError('Called and with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -80,7 +80,7 @@ class BranchFunction {
 }
 
 class DivFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   DivFunction([this._rqlQuery]);
 
@@ -90,13 +90,13 @@ class DivFunction {
     } else if (number is Args) {
       return Div([number]);
     } else {
-      throw RqlDriverError("Called div with too few values");
+      throw RqlDriverError('Called div with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -106,7 +106,7 @@ class DivFunction {
 }
 
 class EqFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   EqFunction([this._rqlQuery]);
 
@@ -116,13 +116,13 @@ class EqFunction {
     } else if (value is Args) {
       return Eq([value]);
     } else {
-      throw RqlDriverError("Called eq with too few values");
+      throw RqlDriverError('Called eq with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -132,7 +132,7 @@ class EqFunction {
 }
 
 class GeFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   GeFunction([this._rqlQuery]);
 
@@ -142,13 +142,13 @@ class GeFunction {
     } else if (number is Args) {
       return Ge([number]);
     } else {
-      throw RqlDriverError("Called ge with too few values");
+      throw RqlDriverError('Called ge with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -158,7 +158,7 @@ class GeFunction {
 }
 
 class GtFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   GtFunction([this._rqlQuery]);
 
@@ -168,13 +168,13 @@ class GtFunction {
     } else if (number is Args) {
       return Gt([number]);
     } else {
-      throw RqlDriverError("Called gt with too few values");
+      throw RqlDriverError('Called gt with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -184,7 +184,7 @@ class GtFunction {
 }
 
 class LeFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   LeFunction([this._rqlQuery]);
 
@@ -194,13 +194,13 @@ class LeFunction {
     } else if (number is Args) {
       return Le([number]);
     } else {
-      throw RqlDriverError("Called le with too few values");
+      throw RqlDriverError('Called le with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -222,7 +222,7 @@ class LineFunction {
 }
 
 class LtFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   LtFunction([this._rqlQuery]);
 
@@ -232,13 +232,13 @@ class LtFunction {
     } else if (number is Args) {
       return Lt([number]);
     } else {
-      throw RqlDriverError("Called lt with too few values");
+      throw RqlDriverError('Called lt with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -257,13 +257,13 @@ class MapFunction {
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List args = List.from(invocation.positionalArguments);
+    var args = List.from(invocation.positionalArguments);
     return RqlMap(args.sublist(0, args.length - 1), args.last);
   }
 }
 
 class MulFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   MulFunction([this._rqlQuery]);
 
@@ -273,13 +273,13 @@ class MulFunction {
     } else if (number is Args) {
       return Mul([number]);
     } else {
-      throw RqlDriverError("Called mul with too few values");
+      throw RqlDriverError('Called mul with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -289,7 +289,7 @@ class MulFunction {
 }
 
 class NeFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   NeFunction([this._rqlQuery]);
 
@@ -299,13 +299,13 @@ class NeFunction {
     } else if (value is Args) {
       return Ne([value]);
     } else {
-      throw RqlDriverError("Called ne with too few values");
+      throw RqlDriverError('Called ne with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -316,7 +316,7 @@ class NeFunction {
 
 /// Adds fields to an object
 class ObjectFunction {
-  Rethinkdb _rethinkdb;
+  final Rethinkdb _rethinkdb;
 
   ObjectFunction(this._rethinkdb);
 
@@ -332,7 +332,7 @@ class ObjectFunction {
 
 /// computes logical 'or' of two or more values
 class OrFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   OrFunction([this._rqlQuery]);
 
@@ -340,13 +340,13 @@ class OrFunction {
     if (_rqlQuery != null) {
       return Or([_rqlQuery, number]);
     } else {
-      throw RqlDriverError("Called or with too few values");
+      throw RqlDriverError('Called or with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -370,7 +370,7 @@ class PolygonFunction {
 /// Evaluate the expr in the context of one or more value bindings.
 /// The type of the result is the type of the value returned from expr.
 class RqlDoFunction {
-  Rethinkdb _rethinkdb;
+  final Rethinkdb _rethinkdb;
 
   RqlDoFunction(this._rethinkdb);
 
@@ -380,13 +380,13 @@ class RqlDoFunction {
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List args = List.from(invocation.positionalArguments);
+    var args = List.from(invocation.positionalArguments);
     return _rethinkdb.rqlDo(args.sublist(0, args.length - 1), args.last);
   }
 }
 
 class SubFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   SubFunction([this._rqlQuery]);
 
@@ -396,13 +396,13 @@ class SubFunction {
     } else if (number is Args) {
       return Sub([number]);
     } else {
-      throw RqlDriverError("Called sub with too few values");
+      throw RqlDriverError('Called sub with too few values');
     }
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    List positionalArguments = [];
+    var positionalArguments = [];
     if (_rqlQuery != null) {
       positionalArguments.add(_rqlQuery);
     }
@@ -421,10 +421,10 @@ class Rethinkdb {
   /// password: password for the user (default "").
   Future<Connection> connect(
           {String db = 'test',
-          String host = "localhost",
+          String host = 'localhost',
           int port = 28015,
-          String user = "admin",
-          String password = "",
+          String user = 'admin',
+          String password = '',
           Map? ssl}) =>
       Connection(db, host, port, user, password, ssl).reconnect();
 
@@ -496,7 +496,7 @@ class Rethinkdb {
   /// We support all valid ISO 8601 formats except for week dates.
   /// If you pass an ISO 8601 date-time without a time zone, you must specify the time zone with the optarg default_timezone.
   ///
-  RqlISO8601 ISO8601(String stringTime, [defaultTimeZone = "Z"]) =>
+  RqlISO8601 ISO8601(String stringTime, [defaultTimeZone = 'Z']) =>
       RqlISO8601(stringTime, defaultTimeZone);
 
   /// Create a time object based on seconds since epoch.
@@ -525,13 +525,13 @@ class Rethinkdb {
   Json json(String json) => Json(json, {});
 
   /// Count the total size of the group.
-  Map count = {"COUNT": true};
+  Map count = {'COUNT': true};
 
   /// Compute the sum of the given field in the group.
   Map sum(String attr) => {'SUM': attr};
 
   /// Compute the average value of the given attribute for the group.
-  Map avg(String attr) => {"AVG": attr};
+  Map avg(String attr) => {'AVG': attr};
 
   /// Returns the currently visited document.
   ImplicitVar row = ImplicitVar();
@@ -558,7 +558,7 @@ class Rethinkdb {
   }
 
   /// Returns logical inverse of the arguments given
-  Not not([value]) => Not(value == null ? true : value);
+  Not not([value]) => Not(value ?? true);
 
   /// Executes the mappingFunction for each item in a sequence or array
   /// and returns the transformed array. multiple sequences and arrays
@@ -586,7 +586,8 @@ class Rethinkdb {
 
   /// Compute the distance between a point and a geometry object
 
-  Distance distance(geo1, geo2, [Map? options]) => Distance(geo1, geo2, options);
+  Distance distance(geo1, geo2, [Map? options]) =>
+      Distance(geo1, geo2, options);
 
   /// Construct a geometric line
   dynamic get line => LineFunction();

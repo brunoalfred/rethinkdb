@@ -7,7 +7,8 @@ class RqlError implements Exception {
 
   RqlError(this.message, this.term, this.frames);
 
-  toString() => "${this.runtimeType}!\n\n$message\n\n$term\n\n$frames";
+  @override
+  toString() => '$runtimeType!\n\n$message\n\n$term\n\n$frames';
 }
 
 class RqlClientError extends RqlError {
@@ -26,6 +27,7 @@ class RqlDriverError implements Exception {
   String message;
   RqlDriverError(this.message);
 
+  @override
   toString() => message;
 }
 
